@@ -1,0 +1,2048 @@
+HTML, JS, CSS (Bootstrap), Angular*
+C# - (TPL - Asynchronous Programming)
+ASP.NET MVC
+ASP.NET WEb API, Entity Framework Fundamentals
+
+
+Fundamentals
+*************
+
+//Primitive Types
+//bool,sbyte,byte - 1
+//short,ushort,char - 2
+//int,uint,float - 4
+//double,long - 8
+//decimal - 16
+//string(Ref - Immutable)
+
+Console.WriteLine(sizeof(decimal)); //16
+		   
+int i = 5;
+Console.WriteLine(i.GetType()); //System.Int32
+
+object i = 5f;
+Console.WriteLine(i.GetType()); //System.Single
+
+object a = 5; // Boxing (Val to Ref)
+Console.WriteLine((int)a + 6);  //Unboxing (Ref to Val)
+
+
+Delegates
+---------
+//To Encapsulate the Fields in C# we have Properties
+//To Encapsulate the Methods in C# we have Delegates
+
+namespace CSharpFundamentals
+{
+    public delegate void CalculateHandler(int a, int b);
+    class Calculator
+    {
+        public void AddNumbers(int a,int b)
+        {
+            Console.WriteLine(a+b);
+        }
+    }
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            CalculateHandler add = new Calculator().AddNumbers; //Refering Method in a class
+
+            //Refering Anonymous Method
+            CalculateHandler multiplication = delegate (int a, int b)
+            {
+                Console.WriteLine(a * b);
+            };
+
+            //Refering Lambda Expression
+            CalculateHandler subtraction = (a, b) => Console.WriteLine(a - b);
+            
+
+            DoSomething(subtraction); //Methods can be passed as an argument
+        }
+
+        //We can pass any methods with takes 2 int arguments and no return type
+        private static void DoSomething(CalculateHandler operation)
+        {
+            //operation.Invoke(5, 6);
+            operation(5, 6);
+        }
+    }
+}
+
+Lambda Expression
+-----------------
+//It is a another form of Anonymous method. All the Anonymous Methods can be written as Lambda Expression in the same way all the Lambda expression can be converted in to Anonymous Methods. Lambda expression must be short.
+
+
+namespace CSharpFundamentals
+{
+    //Declaring the delegate
+    public delegate int AddHandler(int a, int b);
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            //Delegate pointing to Anonymous Method
+            /*AddHandler add = delegate (int a, int b)
+            {
+                return a + b;
+            };*/
+
+            //Delegate pointing to Lambda Expression
+            //AddHandler add = (a, b) => a + b;
+
+            //Func<in,in,out> it can point to the methods which returns the value (No need for declaring the delegates)
+            //Func<int,int,int> add = (a, b) => a + b;
+
+            //Action<in,in> can point to the methods which does not returns the value (No need for declaring the delegates)
+            //Action<int, int> add = (a, b) => Console.WriteLine(a+b);
+
+            string[] cities = { "Chennai", "Bangalore", "Mumbai" };
+
+            //Printing the city with length 6
+            //Predicate can refer a method which takes an item from collection and returns boolean
+            string cityFound = Array.Find(cities, (city) => city.Length == 6);
+            Console.WriteLine(cityFound);
+
+        }
+    }
+}
+
+
+CRUD
+----
+
+namespace CSharpFundamentals
+{
+    class Employee
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    //Container class / Service Class
+    static class EmployeeService
+    {
+        private static List<Employee> employees = null;
+
+        static EmployeeService()
+        {
+            employees = new List<Employee>();
+            employees.Add(new Employee { Id = 1, Name = "Ganesh" });
+            employees.Add(new Employee { Id = 2, Name = "Karthik" });
+            employees.Add(new Employee { Id = 3, Name = "Abishek" });
+        }
+
+        public static bool AddEmployee(Employee newEmployeeDetails)
+        {
+            bool employeeAdded = false;
+            employees.Add(newEmployeeDetails);
+            employeeAdded = true;
+            return employeeAdded;
+        }
+
+        public static List<Employee> GetAllEmployees()
+        {
+            List<Employee> employeeList = null;
+            if (employees.Count > 0)
+                employeeList = employees;
+            return employeeList;
+        }
+
+        public static Employee GetEmployeeById(int employeeId)
+        {
+            Employee employeeFound = null;
+            if (employees.Exists(employee => employee.Id == employeeId))
+                employeeFound = employees.Find(employee => employee.Id == employeeId);
+            return employeeFound;
+        }
+
+        public static bool UpdateEmployee(Employee updatedEmployeeDetails)
+        {
+            bool employeeUpdated = false;
+            if (employees.Exists(employee => employee.Id == updatedEmployeeDetails.Id))
+            {
+                Employee employeeFound = employees.Find(employee => employee.Id == updatedEmployeeDetails.Id);
+                employeeFound.Name = updatedEmployeeDetails.Name;
+                employeeUpdated = true;
+            }
+            return employeeUpdated;
+        }
+
+        public static bool DeleteEmployee(int employeeId)
+        {
+            bool employeeDeleted = false;
+            if (employees.Exists(employee => employee.Id == employeeId))
+            {
+                Employee employeeFound = employees.Find(employee => employee.Id == employeeId);
+                employees.Remove(employeeFound);
+                employeeDeleted = true;
+            }
+            return employeeDeleted;
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            EmployeeService.AddEmployee(new Employee { Id = 4, Name = "Mohan" });
+
+            EmployeeService.GetAllEmployees().ForEach((employee) =>
+                //String Interpolation
+                Console.WriteLine($"Id : {employee.Id} Name : {employee.Name}"));
+        }
+    }
+}
+
+Layering
+*********
+PL, BL, DAL (Separation of Concerns - Modularity, Project Maintenace will be easy)
+
+Microsoft Web development Frameworks (IIS)
+-------------------------------------
+ASP (Active Server Pages) 
+
+ASP.NET : (ASP + : Extended Active Server Pages)
+ -> Single File Page Model (.ASPX)
+ -> Code Behind Model (.ASPX, .CS)
+ 
+ Solution (3 Projects)
+ ASP.NET : PL (Web Application)
+ C# : BL (Class Library)
+ C# , ADO.NET : DAL (Class Library)
+ 
+Limitation :  ASP.NET used as a presentation Layer(HTML, CSS, JS, C#). There is no clear separation between HTML & C#(Hard to Test the application). SErver side controls will get rendered as HTML
+
+ASP.NET MVC 5.0
+
+ Solution (3 Projects)
+ ASP.NET MVC: PL (Web Application) separation of concern strictly concerened with PL
+  * Model
+  * View
+  * Controller  (There is clear separation between HTML & C#)
+ C# : BL (Class Library)
+ C# , ADO.NET : DAL (Class Library)
+
+ASP.NET MVC 5.0 Project Folder Structure
+----------------------------------------
+App_Data : Data sources (XML, SQL Server Database ...)
+App_Start : Startup Files (RouteConfig.cs...)
+Controllers : WE will have MVC Controllers
+Model : Entities 
+Views: HTML, CSS (.cshtml)
+Content : Static Files (Images, CSS)
+Shared : Any Views placed here can be accessed by all the controllers
+   
+
+Routing
+--------
+It will direct the HTTP request to MVC Controller 
+
+Routes are specified in RouteConfig.cs under App_Start Folder.
+
+
+URL (Endpoint): http://localhost:28735/
+
+Base Address : http://localhost:28735/
+Controller : Home
+Action Method : Index
+
+Default Route Pattern : {controller}/{action}/{id}
+defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+
+
+Controller
+-----------
+It is responsible for recieving HTTP request and also build the model and select a view to render it
+
+Controller types must end with Controller (HomeController)
+
+Any Public methods inside the controllers are called as Actions and it can be accesible via URLs
+
+Controller returns ActionResult which tells the framework what to do next
+
+Model:
+------
+It is responsible for transporting the data to the view.(specially from the controller)
+
+Model can be an entity or business object as well  
+
+Model Instances can be accessed in the view via @Model
+
+We can make a view as strongly typed View using @model directive (Only one model can be binded)
+
+
+Views
+-----
+
+It is responsible for Rendering the view (HTML)
+
+Views Folder is the recommended location for the views and the subfolders need to be created for every controller.
+
+In MVC we have 2 view Engines
+
+1. ASPX View Engine : Server side tags (<%%>) **NOT Recommended**
+
+2. Razor View Engine (Recommended)
+
+Default View Engine for ASP.NET MVC
+Generate the Output by combining the data with the template
+We can easily intermingle C# with HTML
+No ties with ASP.NET Runtime (executed without recompiling for changes)
+Files must be saved with .cshtml or .vbhtml
+
+
+
+MVC Demo
+********
+
+
+Controllers/HomeController.cs
+-----------------------------
+using Sample.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace Sample.Controllers
+{
+    public class HomeController : Controller
+    {
+        // GET: /Home/Index/5
+        public string Index(string id)
+        {
+            return $"Welcome to ASP.NET MVC {id}";
+        }
+
+        // GET: /Home/Contact
+        public ActionResult Contact()
+        {
+            return Content("Contact Page");
+        }
+
+        // GET: /Home/Sample
+        public ActionResult Sample()
+        {
+            return View();
+        }
+    }
+}
+
+Controllers/PersonController.cs
+-------------------------------
+using Sample.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace Sample.Controllers
+{
+    public class PersonController : Controller
+    {
+        // GET: /Person/Index
+        public ActionResult Index()
+        {
+            //Building the Model
+            Person personObj = new Person { FirstName = "Karthik" , LastName="Muthukrishnan" };
+            //Selecting the View to render the model passed
+            return View(personObj);
+        }
+    }
+}
+
+Models/Person.cs
+----------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace Sample.Models
+{
+    //Person Entity
+    public class Person
+    {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+    }
+}
+
+Views/Home/Sample.cshtml
+------------------------
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Sample</title>
+</head>
+<body>
+    <div>
+        <h1>Sample View</h1>
+        @{
+            string[] cities = { "Bangalore", "Chennai", "Mumbai","Pune" };
+        }
+        <ol>
+            @foreach (var city in cities)
+            {
+                <li>@city-@@</li>
+            }
+        </ol>
+    </div>
+</body>
+</html>
+
+views/Person/index.cshtml
+-------------------------
+@model Sample.Models.Person
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+    <div> 
+        <h1>@Model.FirstName</h1>
+    </div>
+</body>
+</html>
+
+Bootstrap Fundamentals
+**********************
+
+RWD : Responsive Web Design. WE need to design the webpages which fits well with any devices and screen resolutions. We need to use CSS Media Queries(Conditional Based Styling) to create Responsive Web pages
+
+WE need to be an expert in CSS 3.0 (RWD)
+
+Bootstrap is most popular HTML, CSS and JS Framework for developing responsive mobile first projects on the page. Any developer with little knowledge in HTML & CSS can design the Professional Responive web pages  using it.
+
+Bootstrap Visual Break points
+------------------------------
+
+xs (Extra Small devices - Mobile ) : < 768 px
+sm (Small devices - Tablets ) : >= 768 px  and < 992 px
+md (medium devices - Desktops Browsers ) : >= 992 px  and < 1200 px
+lg (Large Devices - Smart TV) : > 1200px
+
+
+Mobile First Projects :we need to start the project with xs mode, if the web page fits for the mobile then it can be automatically fits(Scaleup) for all other devices.
+
+Bootstrap Grid System
+It has 12 column layout
+
+xs-6  xs - 6 (in  all the modes it will be 2 columns)
+md-6  md - 6 (md and lg will have 2 columns, where as in xs and sm 1 column i.e it will stack down)
+
+
+In ASP.NET MVC 5.0 views will be scaffolded with bootstrap 
+
+
+
+Model Binding
+**************
+
+Mapping the HTTP Request Data directly to the Action Method Parameters (.NET Objects)
+
+Model Binder can bind the datatypes like
+
+ - Primitive Types
+ - Arrays / Collections
+ - Objects
+
+
+Data can be passed in the URL via Path parameter / Query string
+
+
+HomeController.cs
+-----------------
+using ModelBinding.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Web;
+using System.Web.Mvc;
+
+namespace ModelBinding.Controllers
+{
+    public class HomeController : Controller
+    {
+        // GET: /Home/Index/5
+        public ActionResult Index(string id)
+        {
+            return Content($"Id : {id}");
+        }
+
+        // GET: /Home/PrintIdAndName/5?name=Karthik
+        // GET: /Home/PrintIdAndName?id=5&name=Karthik (Since id is a part of your route it can be passed as Querystring also as a path parameter)
+        // GET: /Home/PrintIdAndName/5/Karthik  "{controller}/{action}/{id}/{name}",
+        public ActionResult PrintIdAndName(string id, string name)
+        {
+            return Content($"Id : {id} Name {name}");
+        }
+
+        //GET: /Home/PrintCities?cities[0]=Bangalore&cities[1]=Chennai&cities[2]=Mumbai
+        public ActionResult PrintCities(List<string> cities)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<ul>");
+            foreach (var city in cities)
+            {
+                sb.AppendFormat("<li>{0}</li>", city);
+            }
+            sb.Append("</ul>");
+            return Content(sb.ToString());
+        }
+
+        //GET: /Home/PrintPerson?personobj.name=Ganesh&personobj.age=43
+        public ActionResult PrintPerson(Person personObj)
+        {
+            return Content($"Name : {personObj.Name} Age : {personObj.Age}");
+        }
+
+        //GET: /Home/PrintPersonDetails?personobj.name=Ganesh&personobj.age=43&personobj.cityDetails.cityId=1&personObj.CityDetails.CityName=Mumbai
+        public ActionResult PrintPersonDetails(Person personObj)
+        {
+            return Content($"Name : {personObj.Name} Age : {personObj.Age} City: {personObj.CityDetails.CityName}");
+        }
+    }
+}
+
+
+Person.cs
+---------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace ModelBinding.Models
+{
+    public class Person
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
+
+        public City CityDetails { get; set; }
+    }
+
+    public class City
+    {
+        public int CityId { get; set; }
+        public string CityName { get; set; }
+    }
+}
+
+
+
+GuestPhonebook (Scaffoling)
+--------------------------
+
+Any Views placed in the Shared Folder can be accessed by any of the controller
+
+_Layout.cshtml is like our MasterPage in ASP.NET
+
+
+To Select the master file we can use _ViewStart.cshtml
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+
+Guest.cs
+--------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace GuestPhonebook.Models
+{
+    //Guest Entity
+    public class Guest
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string ContactNumber { get; set; }
+    }
+
+    //Guest Service Class (BO)
+    public class GuestService
+    {
+        private static List<Guest> guestList = null;
+
+        static GuestService()
+        {
+            guestList = new List<Guest>
+            {
+                new Guest { Id = Guid.NewGuid().ToString(), Name = "Ganesh", ContactNumber="9986173091" },
+                new Guest { Id = Guid.NewGuid().ToString(), Name = "Karthik", ContactNumber="9986173092" },
+                new Guest { Id = Guid.NewGuid().ToString(), Name = "Abishek", ContactNumber="9986173093" }
+            };
+        }
+
+        public static bool AddGuest(Guest newGuestDetails)
+        {
+            bool guestAdded = false;
+            //Autogenerated Id
+            newGuestDetails.Id = Guid.NewGuid().ToString();
+            guestList.Add(newGuestDetails);
+            return guestAdded;
+        }
+
+        public static bool UpdateGuest(Guest updatedGuestDetails)
+        {
+            bool guestUpdated = false;
+            if(guestList.Exists(guest=>guest.Id == updatedGuestDetails.Id))
+            {
+                Guest guestToBeUpdated = guestList.Find(guest => guest.Id == updatedGuestDetails.Id);
+                guestToBeUpdated.Name = updatedGuestDetails.Name;
+                guestToBeUpdated.ContactNumber = updatedGuestDetails.ContactNumber;
+                guestUpdated = true;
+            }
+            return guestUpdated;
+        }
+
+        public static bool DeleteGuest(string guestId)
+        {
+            bool guestDeleted = false;
+            if (guestList.Exists(guest => guest.Id == guestId))
+            {
+                Guest guestToBeDeleted = guestList.Find(guest => guest.Id == guestId);
+                guestList.Remove(guestToBeDeleted);
+                guestDeleted = true;
+            }
+            return guestDeleted;
+        }
+
+        public static List<Guest> GetAllGuests() {
+            List<Guest> guests = null;
+            if (guestList.Count > 0)
+                guests = guestList;
+            return guests;
+        }
+
+        public static Guest GetGuestById(string guestId)
+        {
+            Guest guestFound = null;
+            guestFound = guestList.Find(guest => guest.Id == guestId);
+            return guestFound;
+        }
+
+    }
+
+}
+
+HomeController.cs
+------------------
+using GuestPhonebook.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace GuestPhonebook.Controllers
+{
+    public class HomeController : Controller
+    {
+        // GET: Home
+        public ActionResult Index()
+        {
+            List<Guest> guestList = GuestService.GetAllGuests();
+            return View(guestList);
+        }
+
+        // GET: Home/Details/5
+        public ActionResult Details(string id)
+        {
+            Guest guest = GuestService.GetGuestById(id);
+            return View(guest);
+        }
+
+        // GET: Home/Create
+        public ActionResult Create()
+        {
+            return View(new Guest());
+        }
+
+        // POST: Home/Create
+        [HttpPost]
+        public ActionResult Create(FormCollection collection)
+        {
+            try
+            {
+                Guest guestObj = new Guest();
+                guestObj.Name = collection["Name"];
+                guestObj.ContactNumber = collection["ContactNumber"];
+
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View();
+            }
+        }
+
+        // GET: Home/Edit/5
+        public ActionResult Edit(string id)
+        {
+            Guest guest = GuestService.GetGuestById(id);
+            return View(guest);
+        }
+
+        // POST: Home/Edit/5
+        [HttpPost]
+        public ActionResult Edit(int id, Guest guest)
+        {
+            try
+            {
+                GuestService.UpdateGuest(guest);
+
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View(guest);
+            }
+        }
+
+        // GET: Home/Delete/5
+        public ActionResult Delete(string id)
+        {
+            Guest guest = GuestService.GetGuestById(id);
+            return View(guest);
+        }
+
+        // POST: Home/Delete/5
+        [HttpPost]
+        public ActionResult Delete(string id, FormCollection collection)
+        {
+            try
+            {
+                GuestService.DeleteGuest(id);
+
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View();
+            }
+        }
+    }
+}
+
+
+HTML Helpers : It i sused to EMit HTML string
+************
+
+
+Utilities.cs
+------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Web;
+using System.Web.Mvc;
+
+namespace GuestPhonebook.Helpers
+{
+    public static class Utilities
+    {
+        //Creating Custom HTML Helper
+        public static MvcHtmlString PrintUnorderedList(this HtmlHelper html,string[] data)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<ul>");
+            foreach (var item in data)
+            {
+                sb.AppendFormat("<li>{0}</li>", item);
+            }
+            sb.Append("</ul>");
+            return new MvcHtmlString(sb.ToString()); //Return as text/HTML
+            //return sb.ToString(); //Return as text/HTML
+        }
+
+        public static int CountWords(this string data)
+        {
+            return data.Split(' ').Length;
+        }
+    }
+} 
+
+
+index.cshtml
+------------
+@*Including Namespace in Razor view*@
+@using GuestPhonebook.Helpers
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+    <div>
+        <input type="text" name="txtName" value="Karthik" readonly data-company="Capgemini" />
+        <a href="/Home/Company">Company</a>
+
+        @*Inbuild HTML Helpers*@
+        @Html.TextBox("txtName", "Karthik", new { @readonly = "readonly", @data_company = "Capgemini" })
+        @Html.ActionLink("Company", "Company")
+
+        @{
+            string[] cities = { "Bangalore", "Chennai", "Mumbai" };
+        }
+
+
+        <ul>
+            @foreach (var item in cities)
+            {
+                <li>@item</li>
+            }
+        </ul>
+
+        <hr />
+        @*Custom HTML Helper*@
+        @Html.PrintUnorderedList(cities)
+
+        <div>
+            @{
+                string proverb = "Health is wealth";
+                <p>Word Count for <strong>@proverb</strong>is : @proverb.CountWords()</p>
+        }
+    </div>
+
+
+
+</div>
+</body>
+</html>
+
+
+Web Page Optimization
+*****************
+All the modern browsers can handle max 7 requests concurrently, so reducing the number of request / reducing the size of the resource can make the webpages renders quickly 
+
+
+Top 3 resources in webpages : Images, Scripts and CSS
+
+1. Images(GIF, PNG, JPEG, SVG)
+
+GIF  - Graphical Interchangeable Format (128 colors) : Animated Frames, Grayscale image, Thumbnail images, Size wil be less
+
+JPEG - Joint Photographic Expert Group (16 million colors) : Colored Image, Loosy Compression Algorithm(Clarity will be lost on every save)
+
+PNG - Portable Network Graphics (16 million colors) : Transparent Background, Colored Images
+
+SVG - Scalable Vector Graphics (lines, charts, shapes)
+
+
+
+Image Compression :
+http://jpeg-optimizer.com (reduce the size)
+https://tinypng.com
+http://css.spritegen.com (we can combine the images together and reduce the number of requests)
+
+2. Scripts & CSS (Bundling and Minification)
+
+Minification :  (Reduce the Size)
+ Variables name will be shortened
+ Documentation will be removed
+ Spaces will be removed
+ 
+Bundling : 
+  Combining the scripts / Styles together as  single file (Reduce the number of requests)
+  
+ ASP.NET MVC Supports Bundling and minification
+ 
+ Creating Script and Style Bundle in BundleConfig.cs
+ 
+ BundleConfig.cs
+ ---------------
+public class BundleConfig
+{
+   
+	public static void RegisterBundles(BundleCollection bundles)
+	{
+		bundles.Add(new ScriptBundle("~/bundles/sitejs").Include(
+					"~/Scripts/jquery-3.3.1.js",
+					"~/Scripts/jquery.validate.js",
+					"~/Scripts/bootstrap.js"));
+
+		bundles.Add(new StyleBundle("~/bundles/sitecss").Include(
+				   "~/Content/bootstrap.css"));
+	}
+}
+  
+ @*To Refer StyleBundle in View:*@
+ @Styles.Render("~/bundles/sitecss")
+ 
+   @*To Refer ScriptBundle in View:*@
+    @Scripts.Render("~/bundles/sitejs")
+	
+Note : Bundling & Minifaction will be done only in production Environment
+
+Set the following in Web.config
+
+<compilation debug="false" targetFramework="4.6"/>
+and run the application by setting in release mode
+
+or
+
+//To Enable web optimization in bundleconfig.cs
+ BundleTable.EnableOptimizations = true;
+ 
+Model Validations (ClientSide, ServerSide, RemoteValidation)
+************************************************************
+
+To perform Clientside validations on the models with data annotation we required the following JS files
+
+   <script src="~/Scripts/jquery-3.3.1.js"></script>
+    <script src="~/Scripts/jquery.validate.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.js"></script>
+
+	In web config 
+	
+<add key="ClientValidationEnabled" value="true"/>
+<add key="UnobtrusiveJavaScriptEnabled" value="true"/>
+
+Person.cs
+---------
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Web;
+
+namespace ModelValidation.Models
+{
+    public class Person
+    {
+        [Required(ErrorMessage ="Id is required")]
+        public int Id { get; set; }
+
+        [Required(ErrorMessage = "Name is required")]
+        [RegularExpression(@"^[a-zA-Z]+$",ErrorMessage ="Only Alphabets allowed")]
+        public string Name { get; set; }
+
+        [Required(ErrorMessage = "Name is required")]
+        [Range(20,50,ErrorMessage ="Age must be between 20 and 50")]
+        public int Age { get; set; }
+
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString ="{0:d}")]
+        public DateTime DOB { get; set; }
+
+        [DataType(DataType.EmailAddress)]
+        [DisplayName("Email")]
+        public string EmailAddress { get; set; }
+
+        [Required(ErrorMessage = "MobileNumber is required")]
+        [RegularExpression(@"^\d{10}$", ErrorMessage = "Only 10 digits allowed")]
+        [DisplayName("Mobile")]
+        public string MobileNumber { get; set; }
+
+        [ScaffoldColumn(false)]
+        public string Testing { get; set; }
+    }
+}
+
+
+HomeController.cs
+------------------
+using ModelValidation.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace ModelValidation.Controllers
+{
+    public class HomeController : Controller
+    {
+        // GET: Home
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+        public ActionResult Create()
+        {
+            return View(new Person());
+        }
+
+        [HttpPost]
+		//Dont using FormCollection when you trying to perform model validation
+        public ActionResult Create(Person person) 
+        {
+            if (ModelState.IsValid) //Server Side Validation
+            {
+                return Json(person);
+            }
+            else
+            {
+                return View();
+            }
+        }
+    }
+}
+
+RemoteValidation
+----------------
+
+Employee.cs
+-----------
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace ModelValidation.Models
+{
+    public class Employee
+    {
+        [Required(ErrorMessage ="Id is Required")]
+        [Remote("CheckIdExists", "Employee",ErrorMessage ="Id already exists")] //XHR - Ajax Call
+        public int Id { get; set; }
+        [Required(ErrorMessage = "Name is Required")]
+        public string Name { get; set; }
+    }
+}
+
+EmployeeController.cs
+----------------------
+using ModelValidation.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace ModelValidation.Controllers
+{
+    public class EmployeeController : Controller
+    {
+        // GET: Employee
+        public ActionResult Index()
+        {
+            return Content("Remote Validation");
+        }
+
+        //GET
+        public ActionResult CheckIdExists(int id)
+        {
+            if(id <= 100)
+            {
+                //Error message specified in Data Annotation will be displayed
+                return Json(false,JsonRequestBehavior.AllowGet);
+            }else
+            {
+                //Id not Exists no error message
+                return Json(true, JsonRequestBehavior.AllowGet);
+            }
+        }
+        public ActionResult Create()
+        {
+            return View(new Employee());
+        }
+       
+    }
+}
+
+Action Methods
+***************
+
+HomeController.cs
+-----------------
+using ActionsDemo.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace ActionsDemo.Controllers
+{
+    //[HandleError] //Action Filters can be applied to Action Level , Controller Level , Application Level
+    public class HomeController : Controller
+    {
+        // GET: Home
+        //ViewResult is a ActionResult(View())
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+        //RedirectResult is a ActionResult(Redirect())
+        public ActionResult Action01()
+        {
+            return Redirect("http://capgemini.com");
+        }
+
+        //RedirectToRouteResult is a ActionResult(RedirectToAction())
+        public ActionResult Action02()
+        {
+            return RedirectToAction("Action03", "Home", new { id = 4 });
+        }
+
+        //ContentResult is a ActionResult(Content())
+        public ActionResult Action03(int id)
+        {
+            return Content($"Id = {id}");
+        }
+
+        //JsonResult is a ActionResult(Json())
+        public ActionResult Action04()
+        {
+            var employee = new { Id = 1, name = "Karthik", Department = "Training" };
+            return Json(employee, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult Action05()
+        {
+            List<Person> personList = new List<Person>
+            {
+                new Person{ FirstName = "Mukesh", LastName="Kataria"},
+                new Person{ FirstName = "Sachin", LastName="Patankar"},
+                new Person{ FirstName = "Karthik", LastName="Muthukrishnan"}
+            };
+            return View(personList);
+        }
+
+        //PartialViewResult is a ActionResult(PartialView())
+        public ActionResult Action06()
+        {
+            return PartialView("pvPerson", new Person { FirstName = "Karthik", LastName = "Muthukrishnan" });
+        }
+
+        //FilePathResult is a ActionResult(File())
+        public ActionResult Action07()
+        {
+            return File(Server.MapPath("~/Downloads/site.css"), "text/css", "test.css");
+        }
+
+        //EmptyResult is a ActionResult()
+        public ActionResult Action08()
+        {
+            return new EmptyResult();
+        }
+
+        [NonAction]
+        public ActionResult Action09()
+        {
+            return Content("Cannot Access this Method from Controller via URL");
+        }
+
+
+        [ActionName("Special")]
+        //GET : /home/special
+        public ActionResult Action10()
+        {
+            return Content("Cannot be accessed with /home/action10. Need to access it with /home/special");
+        }
+
+        [HttpPost]
+        public ActionResult Action11()
+        {
+            return Content("Can be accessed only with HTTP Post");
+        }
+
+
+        [AcceptVerbs(HttpVerbs.Get | HttpVerbs.Post)]
+        public ActionResult Action12()
+        {
+            return Content("Can be accessed with HTTP GET and POST");
+        }
+
+        [Authorize]
+        public ActionResult Action13()
+        {
+            return Content("Only Authorized users can access it");
+        }
+
+        //Will display the view Error.cshtml under Shared Folder
+        //Set in web.config <customErrors mode="On"/>
+        //[HandleError] 
+        public ActionResult Action14()
+        {
+            throw new Exception("Exception Occured in Home Controller");
+        }
+
+        public ActionResult Error404()
+        {
+            return Content("<h1>Page Not Found</h1>");
+        }
+
+    }
+}
+
+action06.cshtml
+--------------
+@model IEnumerable<ActionsDemo.Models.Person>
+@{
+    ViewBag.Title = "Action06";
+}
+
+<h2>Action06</h2>
+<h3>There are <strong>@Model.Count()</strong> persons in the list</h3>
+<div>
+    @foreach (var person in Model)
+    {
+        @Html.Partial("pvPerson", person)
+    }
+</div>
+
+
+pvPerson.cshtml
+--------------
+@model ActionsDemo.Models.Person
+
+<h3>@Model.FirstName @Model.LastName</h3>
+<hr />
+
+
+Person.cs
+---------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace ActionsDemo.Models
+{
+    public class Person
+    {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+    }
+}
+
+Error.cshtml
+------------
+@model System.Web.Mvc.HandleErrorInfo
+
+@if (Model != null)
+{
+    <div>
+        <strong>Exception Message: </strong> @Model.Exception.Message
+    </div>
+}
+
+
+Web.config
+-----------
+ <customErrors mode="On">
+      <error statusCode="404" redirect="~/Home/Error404" />
+    </customErrors>
+
+	
+Custom Filter UseCase : /Home/Index/10 then REdirect  to Action04
+
+CapgeminiFilter.cs
+------------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace ActionsDemo.CustomFilters
+{
+    public class CapgeminiFilterAttribute : ActionFilterAttribute
+    {
+        public override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            base.OnActionExecuting(filterContext);
+
+            if (filterContext.Controller.GetType().Name == "HomeController")
+            {
+                if (filterContext.ActionDescriptor.ActionName.ToLower().Equals("index"))
+                {
+                    if (filterContext.RouteData.Values["id"] != null && filterContext.RouteData.Values["id"].Equals("10"))
+                    {
+                        filterContext.Result = new RedirectToRouteResult(new System.Web.Routing.RouteValueDictionary(new { controller = "Home", action = "Action04" }));
+                    }
+                }
+            }
+        }
+    }
+}
+
+Routing in MVC 5 (Attribute Routing)
+***********************************
+
+HomeController.cs
+-----------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace MVCRouting.Controllers
+{
+    public class HomeController : Controller
+    {
+        // GET: /Home/Index
+        public ActionResult Index()
+        {
+            return Content("Routing in MVC 5");
+        }
+
+        //GET: /Home/First/10
+        [Route("Home/First/{id:int:range(1,10)}")]
+        public ActionResult First(int id)
+        {
+            return Content($"Home - First - Id = {id}");
+        }
+
+        //GET: /Home/Second/abc
+        [Route("Home/Second/{id:alpha}")]
+        public ActionResult Second(string id)
+        {
+            return Content($"Home - Second - Id = {id}");
+        }
+
+        //GET: /Home/Third/abcdef
+        [Route("Home/Third/{id:alpha:length(3,6)}")]
+        public ActionResult Third(string id)
+        {
+            return Content($"Home - Third - Id = {id}");
+        }
+
+        //GET: /Home/Fourth/666
+        [Route("Home/Fourth/{id:int:regex(^[6-9]{3}$)}")]
+        public ActionResult Fourth(int id)
+        {
+            return Content($"Home - Fourth - Id = {id}");
+        }
+    }
+}
+
+EmployeeController.cs
+---------------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace MVCRouting.Controllers
+{
+    [RoutePrefix("Custom")] //This will be prefiexed for Attribute Routing
+    public class EmployeeController : Controller
+    {
+        // GET: /Employee (Default Route)
+        public ActionResult Index()
+        {
+            return Content("<h1>Employee Controller</h1>");
+        }
+
+        //GET : /Employee/ShowDepartment?department=Training (Default Route)
+        [Route("{department}")] //GET: /Custom/Training (Attribute Routing) deparatment is a Route Parameter
+        public ActionResult ShowDepartment(string department)
+        {
+            return Content($"ShowDepartment : Department = {department}"); 
+        }
+
+        [Route("{department}/{id:int}")] //GET: /Custom/Training/5 (Attribute Routing)
+        public ActionResult ShowDetails(string department,int id)
+        {
+            return Content($"ShowDetails : Department = {department} Id = {id}"); 
+        }
+
+        //Route Prefix will be ignored
+        [Route("~/capgemini/{department?}")] //GET: /capgemini/Training (Attribute Routing)
+        public ActionResult ShowDetails(string department)
+        {
+            return Content($"ShowDetails :  Department = {department}"); 
+        }
+    }
+}
+
+RouteConfig.cs
+-------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using System.Web.Routing;
+
+namespace MVCRouting
+{
+    public class RouteConfig
+    {
+        public static void RegisterRoutes(RouteCollection routes)
+        {
+            routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+
+
+            //Enable the Attribute Routing
+            routes.MapMvcAttributeRoutes();
+
+            routes.MapRoute(
+                name: "Default",
+                url: "{controller}/{action}/{id}",
+                defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+            );
+        }
+    }
+}
+
+Passing Data from Controller to View
+************************************
+We can pass the data from Controller to View using the Following
+
+1. Model
+2. ViewData
+3. ViewBag
+4. TempData
+
+HomeController.cs
+-----------------
+using PassingData.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace PassingData.Controllers
+{
+    public class HomeController : Controller
+    {
+        // GET: Home
+        public ActionResult Index()
+        {
+            return Content("Passing Data from Controller");
+        }
+
+        //GET : /Home/PassModel?firstname=Karthik&lastname=Muthukrishnan
+        public ActionResult PassModel(Person person)
+        {
+            return View(person);
+        }
+
+        public ActionResult PassViewData()
+        {
+            //ViewData is a Dictionary(Key, Value). Key should be string value can be anything
+            //We need to TypeCast to get the data because ViewData is not Strongly typed
+            //It can be accessed only for that Action's Current View cannot be redirected
+            ViewData["company"] = "Capgemini";
+            return View();
+        }
+
+        public ActionResult PassViewBag()
+        {
+            //ViewBag is a Dynamic Property
+            //It can hold any value
+            //No need to TypeCast to get the data because ViewBag is Strongly typed
+            //It can be accessed only for that Action's Current View cannot be redirected
+            ViewBag.State = "Karnataka";
+            return View();
+        }
+
+        public ActionResult PassTempData()
+        {
+            //TempData is a Dictionary(Key, Value). Key should be string value can be anything
+            //We need to TypeCast to get the data because TempData is not Strongly typed
+            //It can be accessed even if is redirected to another Action Method
+            TempData["country"] = "India";
+            return RedirectToAction("GetAndAccessTempData");
+        }
+
+        public ActionResult GetAndAccessTempData()
+        {
+            return View();
+        }
+    }
+}
+
+
+Person.cs
+----------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace PassingData.Models
+{
+    public class Person
+    {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+
+    }
+}
+
+PassModel.cshtml
+-----------------
+@model PassingData.Models.Person
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>PassModel</title>
+</head>
+<body>
+    <div> 
+        @Model.FirstName @Model.LastName
+    </div>
+</body>
+</html>
+
+PasViewData.cshtml
+-----------------
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>PassViewData</title>
+</head>
+<body>
+    <div> 
+        @{ 
+            if (ViewData["company"] != null)
+            {
+                string company = (string)ViewData["company"]; /*TypeCasting Required*/
+                <h2>Company : @company</h2>
+            }
+        }
+    </div>
+</body>
+</html>
+
+
+GetAndAccessTempData.cshtml
+---------------------------
+
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>GetAndAccessTempData</title>
+</head>
+<body>
+    <div>
+        @{
+            if (TempData["country"] != null)
+            {
+                string country = (string)TempData["country"]; /*TypeCasting Required*/
+                <h2>Country : @country</h2>
+            }
+        }
+    </div>
+</body>
+</html>
+
+
+
+Rendering Views
+***************
+
+@RenderBody() : It is used to render the content from the Content page to the master page
+@RenderPage() : It is used to render the content from one Content page to another content page
+@RenderSection() : It is used to render the content from the Content page which is specified with a section to the master page
+
+HomeController.cs
+------------------
+using PassingData.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace PassingData.Controllers
+{
+    public class HomeController : Controller
+    {
+        public ActionResult RenderBodyAction()
+        {
+            return View();
+        }
+    }
+}
+
+_layout.cshtml
+---------------
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+</head>
+<body>
+    <h1>MVC 5 Layout Page</h1>
+    <hr />
+    <div>
+        @RenderBody()
+        <hr />
+        @RenderSection("Karthik",false)@*Section is optional by default true*@
+    </div>
+</body>
+</html>
+
+
+_ViewStart.cshtml
+-----------------
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+RenderBodyAction.cshtml
+-----------------------
+@{
+    ViewBag.Title = "RenderBodyAction";
+}
+
+<h2>RenderBodyAction - Content Page</h2>
+
+<div style="color:white; background-color:black; padding:10px">
+    @RenderPage("RenderPageContents.cshtml")
+</div>
+
+RenderPageContents.cshtml
+-------------------------
+<h2>RenderPageContents - Content from RenderPageContents which can be included in another view</h2>
+
+@section Karthik{
+    <div style="color:white; background-color:blue; padding:10px">
+        <h2>Contents in RenderBodyAction under the section named Karthik</h2>
+    </div>
+}
+
+
+ASP.NET WEb API
+***************
+
+SOA - Service Oriented Architecture
+COM / DCOM
+.NET Remoting
+ASP.NET WebServices
+WCF 
+ASP.NET WEB API (RESTFul Services)
+
+
+
+RESTFul Services can be used by just using HTTP. We can perform CRUD Opertion using HTTP Methods
+
+C - HTTP POST (201)
+R - HTTP GET (200)
+U - HTTP PUT (202)
+D - HTTP DELETE (204)
+
+Content Negotiation : WE can ask the server to respond in the requested Format via Request Header : Accept
+
+ASP.NET WEB API supports both the formats
+
+Accept : application/xml
+Accept : application/json  (default)
+
+
+GET:
+http://capgemini.com/logo.png
+
+
+Status Code 
+1xx : Information
+2xx : Success (200,201,202,204)
+3xx : Redirection
+4xx : Client Side Error (404
+5xx : server side Error
+
+webapiconfig.cs
+---------------
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web.Http;
+using Newtonsoft.Json.Serialization;
+
+namespace WebApi
+{
+    public static class WebApiConfig
+    {
+        public static void Register(HttpConfiguration config)
+        {
+            // Web API configuration and services
+
+            // Web API routes
+            config.MapHttpAttributeRoutes();
+
+			//Enabling CORS
+            config.EnableCors();
+			
+            //Solving the Propertycase issue to camel case (Newtonsoft.Json.Serialization)
+            config.Formatters.JsonFormatter.SerializerSettings.ContractResolver 
+                = new CamelCasePropertyNamesContractResolver();
+
+            config.Routes.MapHttpRoute(
+                name: "DefaultApi",
+                routeTemplate: "api/{controller}/{id}",
+                defaults: new { id = RouteParameter.Optional }
+            );
+        }
+    }
+}
+
+
+Guest.cs
+--------
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Web;
+
+namespace WebApi.Models
+{
+    //Guest Entity
+    public class Guest
+    {
+        public string Id { get; set; }
+
+        [Required(ErrorMessage ="Name is required")]
+        [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "Only alphabets allowed")]
+        public string Name { get; set; }
+
+        [Required(ErrorMessage = "ContactNumber is required")]
+        [RegularExpression(@"^\d{10}$", ErrorMessage = "Only 10 digits allowed")]
+        public string ContactNumber { get; set; }
+    }
+
+    //Guest Service Class (BO)
+    public class GuestService
+    {
+        private static List<Guest> guestList = null;
+
+        static GuestService()
+        {
+            guestList = new List<Guest>
+            {
+                new Guest { Id = Guid.NewGuid().ToString(), Name = "Ganesh", ContactNumber="9986173091" },
+                new Guest { Id = Guid.NewGuid().ToString(), Name = "Karthik", ContactNumber="9986173092" },
+                new Guest { Id = Guid.NewGuid().ToString(), Name = "Abishek", ContactNumber="9986173093" }
+            };
+        }
+
+        public static Guest AddGuest(Guest newGuestDetails)
+        {
+            Guest guestAdded = null;
+            //Autogenerated Id
+            newGuestDetails.Id = Guid.NewGuid().ToString();
+            guestList.Add(newGuestDetails);
+            guestAdded = newGuestDetails;
+            return newGuestDetails;
+        }
+
+        public static bool UpdateGuest(Guest updatedGuestDetails)
+        {
+            bool guestUpdated = false;
+            if (guestList.Exists(guest => guest.Id == updatedGuestDetails.Id))
+            {
+                Guest guestToBeUpdated = guestList.Find(guest => guest.Id == updatedGuestDetails.Id);
+                guestToBeUpdated.Name = updatedGuestDetails.Name;
+                guestToBeUpdated.ContactNumber = updatedGuestDetails.ContactNumber;
+                guestUpdated = true;
+            }
+            return guestUpdated;
+        }
+
+        public static bool DeleteGuest(string guestId)
+        {
+            bool guestDeleted = false;
+            if (guestList.Exists(guest => guest.Id == guestId))
+            {
+                Guest guestToBeDeleted = guestList.Find(guest => guest.Id == guestId);
+                guestList.Remove(guestToBeDeleted);
+                guestDeleted = true;
+            }
+            return guestDeleted;
+        }
+
+        public static List<Guest> GetAllGuests()
+        {
+            List<Guest> guests = null;
+            if (guestList.Count > 0)
+                guests = guestList;
+            return guests;
+        }
+
+        public static Guest GetGuestById(string guestId)
+        {
+            Guest guestFound = null;
+            if (guestList.Exists(guest => guest.Id == guestId))
+            {
+                guestFound = guestList.Find(guest => guest.Id == guestId);
+            }
+            return guestFound;
+        }
+
+    }
+}
+
+
+GuestController.cs
+------------------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Web.Http;
+using WebApi.Models;
+
+namespace WebApi.Controllers
+{
+	  [EnableCorsAttribute("*","*","*")] //All Origins,All Headers, All Methods(GET, PUT, POST, DELETE)
+      public class GuestsController : ApiController
+    {
+        //GET : api/guests
+        //Content Negotiation can be done by passing the required format in Request Header "Accept"
+        //Accept : application/json (default)
+        //Accept : application/xml
+
+        public HttpResponseMessage Get()
+        {
+            HttpResponseMessage msg = null;
+            List<Guest> guests = GuestService.GetAllGuests();
+            msg = Request.CreateResponse(HttpStatusCode.OK, guests);//200 
+            return msg;
+        }
+
+        //GET : api/guests/cdfbb848-6bda-4741-963e-29eb09ee42dc
+        public HttpResponseMessage Get(string id)
+        {
+            HttpResponseMessage msg = null;
+            Guest guest = GuestService.GetGuestById(id);
+            if (guest != null)
+            {
+                //If resource is found (200)
+                msg = Request.CreateResponse(HttpStatusCode.OK, guest);
+            }
+            else
+            {
+                //If resource is not found(404)
+                msg = Request.CreateResponse(HttpStatusCode.NotFound);
+                msg.ReasonPhrase = "Guest Not Found";
+            }
+
+            return msg;
+        }
+
+        //POST : /api/guests
+        //Guest object will be posted in Request body (json, xml, x-www-form-urlencoded)
+        //Request Header : Content-Type : application/json
+        public HttpResponseMessage Post(Guest guest)
+        {
+            HttpResponseMessage msg = null;
+            if (ModelState.IsValid)
+            {
+                Guest guestAdded = GuestService.AddGuest(guest);
+                
+                //status Code 201
+
+                msg = Request.CreateResponse<Guest>(HttpStatusCode.Created, guestAdded);
+                msg.ReasonPhrase = "Guest Created";
+
+                //Response Location Header should have the endpoint of newly created resource
+                //http://localhost:5229/api/guests/b085ec58-54f2-423d-bf09-1ebde7d71b00
+
+                msg.Headers.Location = new Uri($"{Request.RequestUri}/{guestAdded.Id}");
+                return msg;
+            }
+            else
+            {
+                //To get DataAnnotation Errors from the Model passed via RequestBody
+                var errorList = ModelState.Values
+                    .SelectMany(m => m.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+                //Status code 400
+                msg = Request.CreateResponse(HttpStatusCode.BadRequest,errorList);
+                msg.ReasonPhrase = "Invalid Guest Details";
+                return msg;
+            }
+
+        }
+
+        public HttpResponseMessage Put(string id,Guest guest)
+        {
+            HttpResponseMessage msg = null;
+            GuestService.UpdateGuest(guest);
+            msg = Request.CreateResponse(HttpStatusCode.Accepted);
+            msg.ReasonPhrase = "Guest Updated";
+            return msg;
+        }
+
+        public HttpResponseMessage Delete(string id)
+        {
+            HttpResponseMessage msg = null;
+            GuestService.DeleteGuest(id);
+            msg = Request.CreateResponse(HttpStatusCode.NoContent);
+            msg.ReasonPhrase = "Guest Deleted";
+            return msg;
+        }
+
+    }
+}
+
+
+
+Host: localhost:5229
+Origin: http://localhost:6280
+
+Cross Origin Resource Sharing
+-----------------------------
+Failed to load http://localhost:5229/api/guests: No 'Access-Control-Allow-Origin' header is present on the requested resource. Origin 'http://localhost:6280' is therefore not allowed access.
+
+To Enable Cross Origin Resource Sharing we need to enable the CORS in ASP.NET Web API
+
+To enable CORS install : Microsoft.AspNet.WebApi.Cors package
+
+
+MVCApp - index.cshtml
+---------------------
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+    <div>
+        <button id="btnAjax">Get All Guests</button>
+        <hr />
+        <div id="target"></div>
+    </div>
+    <script src="~/Scripts/jquery-3.3.1.js"></script>
+    <script>
+        $(function () {
+            $('#btnAjax').bind('click', function () {
+                $.ajax({
+                    type: 'GET',
+                    url: 'http://localhost:5229/api/guests',
+                }).done(function (response) {
+                    var result = "<table border=1><tr><th>Id</th><th>Name</th><th>Contact Number</th></tr>"
+                    response.forEach(function (guest) {
+                        result+="<tr><td>"+guest.id+"</td><td>"+guest.name+"</td><td>"+guest.contactNumber+"</td></tr>"
+                    });
+                    result += "</table>"
+                    $('#target').html(result);
+                }).fail(function (err) {
+                    console.log('Error:'+err);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+Task Parallelism***
+ASP.NET MVC Ajax**
+Entity Framwork with MVC
+Asynchronous Programming
+Security Overview in MVC
+
+Angular Introduction (2 -3 hrs)
+Angular Service which consumes ASP.NET Web API RESTful Services (Integrate)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	
+
+	
+  
+
+
+
+
+
+
+
+
+
+
